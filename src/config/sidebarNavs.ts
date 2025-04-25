@@ -7,6 +7,7 @@ import {
   UserCog,
   UserPlus,
   // UserRoundCheck,
+  Badge,
   Users,
 } from "lucide-react";
 
@@ -74,6 +75,12 @@ export const sideBarNavs: SideBarNavItem[] = [
     //     icon: Church,
     //   },
     // ],
+  },
+  {
+    title: "Communities",
+    icon: Badge,
+    href: "/communities",
+
   },
   {
     isHeader: true,
