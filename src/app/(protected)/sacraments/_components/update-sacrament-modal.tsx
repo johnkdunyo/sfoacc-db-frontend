@@ -1,3 +1,4 @@
+// UpdateSacramentModal.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -16,55 +17,60 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ErrorAlert } from "@/components/ui/errorAlert";
 import { useSession } from "next-auth/react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { PencilLine } from "lucide-react";
+import { ISacrament } from "./sacraments-table";
 
-interface AddCommunityModalProps {
-  onCommunityAdded: () => void;
+interface UpdateSacramentModalProps {
+  onSacramentUpdated: () => void;
+  oldSacramentData: ISacrament;
 }
 
-interface CommunityFormData {
+interface SacramentFormData {
   name: string;
   description: string;
-  location: string;
+  once_only: boolean;
 }
 
-export default function AddCommunityModal({
-  onCommunityAdded,
-}: AddCommunityModalProps) {
+export default function UpdateSacramentModal({
+  onSacramentUpdated,
+  oldSacramentData,
+}: UpdateSacramentModalProps) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const { data: session } = useSession();
 
-  const form = useForm<CommunityFormData>({
+  const form = useForm<SacramentFormData>({
     defaultValues: {
-      description: "",
-      name: "",
-      location: "",
+      name: oldSacramentData.name,
+      description: oldSacramentData.description,
+      once_only: oldSacramentData.once_only,
     },
   });
 
-  const onSubmit = async (data: CommunityFormData) => {
+  // Reset form when oldSacramentData changes
+  useEffect(() => {
+    form.reset({
+      name: oldSacramentData.name,
+      description: oldSacramentData.description,
+      once_only: oldSacramentData.once_only,
+    });
+  }, [oldSacramentData, form]);
+
+  const onSubmit = async (data: SacramentFormData) => {
     try {
       setIsSubmitting(true);
       setError(null);
 
-      const validationErrors = form.formState.errors;
-      if (Object.keys(validationErrors).length > 0) {
-        const firstError = Object.values(validationErrors)[0];
-        setError(firstError.message || "Please check the form for errors");
-        return;
-      }
-      //http://13.60.62.124:8000/api/v1/church-community/all
-      const response = await fetch(`/api/v1/church-community/`, {
-        method: "POST",
+      const response = await fetch(`/api/v1/sacraments/`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.accessToken}`,
@@ -75,20 +81,15 @@ export default function AddCommunityModal({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to add a community");
+        throw new Error(errorData.detail || "Failed to update a Sacrament");
       }
 
-      console.log("response", response);
-
-      // const newUser = await response.json();
-      onCommunityAdded();
+      onSacramentUpdated();
       setOpen(false);
-      form.reset();
-      toast.success("Community added successfully");
+      toast.success("Sacrament updated successfully");
     } catch (err) {
-      console.log("error", err);
       const error = err as Error;
-      const errorMessage = error.message || "Failed to add community";
+      const errorMessage = error.message || "Failed to update Sacrament";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -99,17 +100,15 @@ export default function AddCommunityModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="h-8">
-          Add Community
-        </Button>
+        <PencilLine className="w-6 h-6 cursor-pointer hover:text-blue-600 transition-colors" />
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] md:max-w-lg p-4 rounded-md">
         <DialogHeader>
-          <DialogTitle className="text-left">Add Community</DialogTitle>
+          <DialogTitle className="text-left">Update Sacrament</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 ">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {error && (
               <ErrorAlert message={error} onClose={() => setError(null)} />
             )}
@@ -117,12 +116,12 @@ export default function AddCommunityModal({
             <FormField
               control={form.control}
               name="name"
-              rules={{ required: "Community name is required" }}
+              rules={{ required: "Name of Sacrament is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Community Name</FormLabel>
+                  <FormLabel>Sacrament Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nigerian Community" {...field} />
+                    <Input placeholder="Holy Communion" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -137,7 +136,10 @@ export default function AddCommunityModal({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="All Nigerians in Botwe" {...field} />
+                    <Input
+                      placeholder="A Sacrament called Holy Matrimony"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -146,20 +148,21 @@ export default function AddCommunityModal({
 
             <FormField
               control={form.control}
-              name="location"
-              rules={{ required: "Location is required" }}
+              name="once_only"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
+                <FormItem className="flex flex-row items-center gap-3 space-y-0">
                   <FormControl>
-                    <Input placeholder="Location of the community" {...field} />
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormLabel className="mt-0">Received only once</FormLabel>
                 </FormItem>
               )}
             />
 
-            <div className="flex justify-end space-x-2 pt-4">
+            <div className="flex justify-end gap-2 pt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -171,9 +174,9 @@ export default function AddCommunityModal({
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                isLoading={isSubmitting}
+                className="min-w-[120px]"
               >
-                {isSubmitting ? "Adding..." : "Add Community"}
+                {isSubmitting ? "Updating..." : "Update Sacrament"}
               </Button>
             </div>
           </form>

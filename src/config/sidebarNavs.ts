@@ -8,6 +8,8 @@ import {
   UserPlus,
   // UserRoundCheck,
   Badge,
+  Anvil,
+  Rainbow,
   Users,
 } from "lucide-react";
 
@@ -58,7 +60,12 @@ export const sideBarNavs: SideBarNavItem[] = [
       },
     ],
   },
+  {
+    title: "Sacraments",
+    icon: Anvil,
+    href: "/sacraments",
 
+  },
   {
     title: "Societies",
     icon: Church,
@@ -80,6 +87,12 @@ export const sideBarNavs: SideBarNavItem[] = [
     title: "Communities",
     icon: Badge,
     href: "/communities",
+
+  },
+  {
+    title: "Places of Worship",
+    icon: Rainbow,
+    href: "/placesofworship",
 
   },
   {

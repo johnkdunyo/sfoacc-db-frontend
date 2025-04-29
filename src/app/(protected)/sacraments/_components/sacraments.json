@@ -1,0 +1,46 @@
+{
+  "sacraments": [
+    {
+      "name": "Baptism",
+      "description": "The first sacrament of initiation, which cleanses a person of original sin and welcomes them into the Church as a child of God.",
+      "once_only": true,
+      "id": 1
+    },
+    {
+      "name": "First Communion",
+      "description": "Also known as First Holy Communion or Eucharist, this sacrament commemorates the Last Supper, where Catholics receive the Body and Blood of Christ in the form of bread and wine.",
+      "once_only": true,
+      "id": 2
+    },
+    {
+      "name": "Confirmation",
+      "description": "A sacrament of initiation where a baptized person receives the gifts of the Holy Spirit, strengthening their faith and commitment to the Church.",
+      "once_only": true,
+      "id": 3
+    },
+    {
+      "name": "Penance",
+      "description": "Also called Confession or Reconciliation, this sacrament allows Catholics to confess their sins, receive absolution from a priest, and be reconciled with God.",
+      "once_only": false,
+      "id": 4
+    },
+    {
+      "name": "Anointing of the Sick",
+      "description": "A sacrament of healing given to those who are seriously ill or near death, providing spiritual strength, comfort, and sometimes physical healing.",
+      "once_only": false,
+      "id": 5
+    },
+    {
+      "name": "Holy Orders",
+      "description": "The sacrament through which men are ordained as deacons, priests, or bishops to serve the Church in a special way.",
+      "once_only": true,
+      "id": 6
+    },
+    {
+      "name": "Holy Matrimony",
+      "description": "The sacrament of marriage, where a man and woman enter into a sacred covenant with God and each other, forming a lifelong union.",
+      "once_only": false,
+      "id": 7
+    }
+  ]
+}

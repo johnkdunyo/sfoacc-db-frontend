@@ -1,0 +1,25 @@
+{
+ 
+  "placesofworship": [
+    {
+      "name": "St. Francis of Assisi",
+      "description": "A Catholic church known for its vibrant community and solemn liturgical celebrations.",
+      "location": "Ashaley Botwe, Accra",
+      "address": "",
+      "mass_schedule": "",
+      "id": 1,
+      "created_at": "2025-04-21T16:02:18.589315Z",
+      "updated_at": "2025-04-21T16:02:18.589319Z"
+    },
+    {
+      "name": "St. Andrews",
+      "description": "A welcoming place of worship serving the Catholic faithful in Nanakrom and its surroundings.",
+      "location": "Nanakrom, Lakeside, Accra",
+      "address": "",
+      "mass_schedule": "",
+      "id": 2,
+      "created_at": "2025-04-21T16:02:18.592780Z",
+      "updated_at": "2025-04-21T16:02:18.592783Z"
+    }
+  ]
+}

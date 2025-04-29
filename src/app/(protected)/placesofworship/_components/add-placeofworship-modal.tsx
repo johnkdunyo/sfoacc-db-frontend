@@ -24,34 +24,38 @@ import { toast } from "sonner";
 import { ErrorAlert } from "@/components/ui/errorAlert";
 import { useSession } from "next-auth/react";
 
-interface AddCommunityModalProps {
-  onCommunityAdded: () => void;
+interface AddPlaceOfWorshipModalProps {
+  onPlaceOfWorshipAdded: () => void;
 }
 
-interface CommunityFormData {
+interface PLaceOfWorshipFormData {
   name: string;
   description: string;
   location: string;
+  address?: string;
+  mass_schedule?: string;
 }
 
-export default function AddCommunityModal({
-  onCommunityAdded,
-}: AddCommunityModalProps) {
+export default function AddPlaceOfWorshipModal({
+  onPlaceOfWorshipAdded,
+}: AddPlaceOfWorshipModalProps) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: session } = useSession();
 
-  const form = useForm<CommunityFormData>({
+  const form = useForm<PLaceOfWorshipFormData>({
     defaultValues: {
       description: "",
       name: "",
       location: "",
+      address: "",
+      mass_schedule: "",
     },
   });
 
-  const onSubmit = async (data: CommunityFormData) => {
+  const onSubmit = async (data: PLaceOfWorshipFormData) => {
     try {
       setIsSubmitting(true);
       setError(null);
@@ -62,8 +66,8 @@ export default function AddCommunityModal({
         setError(firstError.message || "Please check the form for errors");
         return;
       }
-      //http://13.60.62.124:8000/api/v1/church-community/all
-      const response = await fetch(`/api/v1/church-community/`, {
+      //http://13.60.62.124:8000/api/v1/place-of-worship/all
+      const response = await fetch(`/api/v1/place-of-worship/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,20 +79,20 @@ export default function AddCommunityModal({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to add a community");
+        throw new Error(errorData.detail || "Failed to add a place of worship");
       }
 
       console.log("response", response);
 
       // const newUser = await response.json();
-      onCommunityAdded();
+      onPlaceOfWorshipAdded();
       setOpen(false);
       form.reset();
-      toast.success("Community added successfully");
+      toast.success("Place of worship added successfully");
     } catch (err) {
       console.log("error", err);
       const error = err as Error;
-      const errorMessage = error.message || "Failed to add community";
+      const errorMessage = error.message || "Failed to add Place of worship";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -100,12 +104,12 @@ export default function AddCommunityModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" className="h-8">
-          Add Community
+          Add Place of Worship
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] md:max-w-lg p-4 rounded-md">
         <DialogHeader>
-          <DialogTitle className="text-left">Add Community</DialogTitle>
+          <DialogTitle className="text-left">Add Place of Worship</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -117,12 +121,12 @@ export default function AddCommunityModal({
             <FormField
               control={form.control}
               name="name"
-              rules={{ required: "Community name is required" }}
+              rules={{ required: "Name of worship place is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Community Name</FormLabel>
+                  <FormLabel>Worship Place Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nigerian Community" {...field} />
+                    <Input placeholder="St. Andrews" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -137,7 +141,28 @@ export default function AddCommunityModal({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="All Nigerians in Botwe" {...field} />
+                    <Input
+                      placeholder="A place of worship called St. Andrews"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="address"
+              rules={{ required: "Address is required" }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Address of the place of worship"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -152,7 +177,25 @@ export default function AddCommunityModal({
                 <FormItem>
                   <FormLabel>Location</FormLabel>
                   <FormControl>
-                    <Input placeholder="Location of the community" {...field} />
+                    <Input
+                      placeholder="Location of the place of worship"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="mass_schedule"
+              rules={{ required: "Mass schedule is required" }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mass Schedule</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Times for mass" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -173,7 +216,7 @@ export default function AddCommunityModal({
                 disabled={isSubmitting}
                 isLoading={isSubmitting}
               >
-                {isSubmitting ? "Adding..." : "Add Community"}
+                {isSubmitting ? "Adding..." : "Add Place of Worship"}
               </Button>
             </div>
           </form>

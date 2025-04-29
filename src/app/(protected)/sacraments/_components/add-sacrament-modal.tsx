@@ -16,54 +16,49 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { ErrorAlert } from "@/components/ui/errorAlert";
 import { useSession } from "next-auth/react";
+import { Checkbox } from "@/components/ui/checkbox";
 
-interface AddCommunityModalProps {
-  onCommunityAdded: () => void;
+interface AddSacramentModalProps {
+  onSacramentAdded: () => void;
 }
 
-interface CommunityFormData {
+interface SacramentFormData {
   name: string;
   description: string;
   location: string;
+  address?: string;
+  mass_schedule?: string;
+  once_only: boolean; // Added boolean field for checkbox
 }
 
-export default function AddCommunityModal({
-  onCommunityAdded,
-}: AddCommunityModalProps) {
+export default function AddSacramentModal({
+  onSacramentAdded,
+}: AddSacramentModalProps) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const { data: session } = useSession();
 
-  const form = useForm<CommunityFormData>({
+  const form = useForm<SacramentFormData>({
     defaultValues: {
       description: "",
       name: "",
-      location: "",
+      once_only: false, // Initialize checkbox state
     },
   });
 
-  const onSubmit = async (data: CommunityFormData) => {
+  const onSubmit = async (data: SacramentFormData) => {
     try {
       setIsSubmitting(true);
       setError(null);
 
-      const validationErrors = form.formState.errors;
-      if (Object.keys(validationErrors).length > 0) {
-        const firstError = Object.values(validationErrors)[0];
-        setError(firstError.message || "Please check the form for errors");
-        return;
-      }
-      //http://13.60.62.124:8000/api/v1/church-community/all
-      const response = await fetch(`/api/v1/church-community/`, {
+      const response = await fetch(`/api/v1/sacraments/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,20 +70,16 @@ export default function AddCommunityModal({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to add a community");
+        throw new Error(errorData.detail || "Failed to add a Sacrament");
       }
 
-      console.log("response", response);
-
-      // const newUser = await response.json();
-      onCommunityAdded();
+      onSacramentAdded();
       setOpen(false);
       form.reset();
-      toast.success("Community added successfully");
+      toast.success("Sacrament added successfully");
     } catch (err) {
-      console.log("error", err);
       const error = err as Error;
-      const errorMessage = error.message || "Failed to add community";
+      const errorMessage = error.message || "Failed to add Sacrament";
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -100,35 +91,37 @@ export default function AddCommunityModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" className="h-8">
-          Add Community
+          Add Sacrament
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] md:max-w-lg p-4 rounded-md">
         <DialogHeader>
-          <DialogTitle className="text-left">Add Community</DialogTitle>
+          <DialogTitle className="text-left">Add Sacrament</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 ">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {error && (
               <ErrorAlert message={error} onClose={() => setError(null)} />
             )}
 
+            {/* Name Field */}
             <FormField
               control={form.control}
               name="name"
-              rules={{ required: "Community name is required" }}
+              rules={{ required: "Name of Sacrament is required" }}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Community Name</FormLabel>
+                  <FormLabel>Sacrament Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nigerian Community" {...field} />
+                    <Input placeholder="Holy Communion" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Description Field */}
             <FormField
               control={form.control}
               name="description"
@@ -137,24 +130,46 @@ export default function AddCommunityModal({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input placeholder="All Nigerians in Botwe" {...field} />
+                    <Input
+                      placeholder="A Sacrament called Holy Matrimony"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Address Field */}
             <FormField
               control={form.control}
-              name="location"
-              rules={{ required: "Location is required" }}
+              name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location</FormLabel>
+                  <FormLabel>Address</FormLabel>
                   <FormControl>
-                    <Input placeholder="Location of the community" {...field} />
+                    <Input placeholder="123 Church Street" {...field} />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Once Only Checkbox */}
+            <FormField
+              control={form.control}
+              name="once_only"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Received only once</FormLabel>
+                  </div>
                 </FormItem>
               )}
             />
@@ -168,12 +183,8 @@ export default function AddCommunityModal({
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                isLoading={isSubmitting}
-              >
-                {isSubmitting ? "Adding..." : "Add Community"}
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Adding..." : "Add Sacrament"}
               </Button>
             </div>
           </form>

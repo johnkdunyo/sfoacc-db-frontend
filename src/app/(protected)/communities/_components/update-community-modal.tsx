@@ -23,9 +23,12 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { ErrorAlert } from "@/components/ui/errorAlert";
 import { useSession } from "next-auth/react";
+import { ICommunity } from "./communities-table";
+import { PencilLine } from "lucide-react";
 
-interface AddCommunityModalProps {
-  onCommunityAdded: () => void;
+interface UpdateCommunityModalProps {
+  onCommunityUpdated: () => void;
+  oldCommunityData: ICommunity;
 }
 
 interface CommunityFormData {
@@ -34,9 +37,10 @@ interface CommunityFormData {
   location: string;
 }
 
-export default function AddCommunityModal({
-  onCommunityAdded,
-}: AddCommunityModalProps) {
+export default function UpdateCommunityModal({
+  onCommunityUpdated,
+  oldCommunityData,
+}: UpdateCommunityModalProps) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,11 +48,7 @@ export default function AddCommunityModal({
   const { data: session } = useSession();
 
   const form = useForm<CommunityFormData>({
-    defaultValues: {
-      description: "",
-      name: "",
-      location: "",
-    },
+    defaultValues: { ...oldCommunityData },
   });
 
   const onSubmit = async (data: CommunityFormData) => {
@@ -64,7 +64,7 @@ export default function AddCommunityModal({
       }
       //http://13.60.62.124:8000/api/v1/church-community/all
       const response = await fetch(`/api/v1/church-community/`, {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.accessToken}`,
@@ -81,7 +81,7 @@ export default function AddCommunityModal({
       console.log("response", response);
 
       // const newUser = await response.json();
-      onCommunityAdded();
+      onCommunityUpdated();
       setOpen(false);
       form.reset();
       toast.success("Community added successfully");
@@ -99,13 +99,11 @@ export default function AddCommunityModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="h-8">
-          Add Community
-        </Button>
+        <PencilLine className="w-6 h-6 cursor-pointer hover:text-blue-600 transition-colors" />
       </DialogTrigger>
       <DialogContent className="max-w-[22rem] md:max-w-lg p-4 rounded-md">
         <DialogHeader>
-          <DialogTitle className="text-left">Add Community</DialogTitle>
+          <DialogTitle className="text-left">Update Community</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -173,7 +171,7 @@ export default function AddCommunityModal({
                 disabled={isSubmitting}
                 isLoading={isSubmitting}
               >
-                {isSubmitting ? "Adding..." : "Add Community"}
+                {isSubmitting ? "Updating..." : "Update Community"}
               </Button>
             </div>
           </form>
